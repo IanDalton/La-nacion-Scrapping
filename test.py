@@ -12,6 +12,11 @@ async def extract_nota_id(script_text):
     else:
         return None
 
+async def get_redirected_url_async(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return str(response.url)
+
 async def extract_comments(session, comment_id, last_comment=None, context_uuid=None):
     url = 'https://livecomments.viafoura.co/v4/livecomments/00000000-0000-4000-8000-5611d514abb3'
     if context_uuid:
@@ -49,6 +54,8 @@ async def extract_comments(session, comment_id, last_comment=None, context_uuid=
 
 
 async def get_info(session, url:str):
+    url = await get_redirected_url_async(url)
+    print(url)
     async with session.get(url) as response:
         response_text = await response.text()
     tree = html.fromstring(response_text)
@@ -65,9 +72,8 @@ async def get_info(session, url:str):
 
 
 async def main():
-    urls = ["https://www.lanacion.com.ar/el-mundo/su-marido-nunca-abandono-murio-la-mujer-que-estuvo-en-coma-durante-31-anos-por-un-accidente-de-nid16052023/",
-            "https://www.lanacion.com.ar/politica/cristina-kirchner-ratifico-que-no-sera-candidata-no-voy-a-ser-mascota-del-poder-nid16052023/",
-            "https://www.lanacion.com.ar/politica/la-corte-fallo-en-favor-del-extitular-del-centro-wiessenthal-en-una-demanda-de-un-periodista-nid16052023/"]
+    urls = [
+            "https://lanacion.com.ar/2754655"]
 
     async with aiohttp.ClientSession() as session:
         async with asyncio.TaskGroup() as tg:
